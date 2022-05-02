@@ -1,5 +1,5 @@
 ﻿{
-	"version": 1651264507,
+	"version": 1651493560,
 	"fileList": [
 		"data.js",
 		"c2runtime.js",
@@ -18,11 +18,13 @@
 		"assets/bullet-3.ogg",
 		"assets/laser-shot.m4a",
 		"assets/laser-shot.ogg",
+		"assets/stage 2.ogg",
 		"icon-16.png",
 		"icon-32.png",
 		"icon-114.png",
 		"icon-128.png",
 		"icon-256.png",
-		"loading-logo.png"
+		"loading-logo.png",
+		"stage 2.json"
 	]
 }

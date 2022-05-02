@@ -21819,51 +21819,6 @@ cr.behaviors.EightDir = function(runtime)
 }());
 ;
 ;
-cr.behaviors.Persist = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var behaviorProto = cr.behaviors.Persist.prototype;
-	behaviorProto.Type = function(behavior, objtype)
-	{
-		this.behavior = behavior;
-		this.objtype = objtype;
-		this.runtime = behavior.runtime;
-	};
-	var behtypeProto = behaviorProto.Type.prototype;
-	behtypeProto.onCreate = function()
-	{
-	};
-	behaviorProto.Instance = function(type, inst)
-	{
-		this.type = type;
-		this.behavior = type.behavior;
-		this.inst = inst;				// associated object instance to modify
-		this.runtime = type.runtime;
-	};
-	var behinstProto = behaviorProto.Instance.prototype;
-	behinstProto.onCreate = function()
-	{
-		this.myProperty = this.properties[0];
-	};
-	behinstProto.onDestroy = function ()
-	{
-	};
-	behinstProto.tick = function ()
-	{
-		var dt = this.runtime.getDt(this.inst);
-	};
-	function Cnds() {};
-	behaviorProto.cnds = new Cnds();
-	function Acts() {};
-	behaviorProto.acts = new Acts();
-	function Exps() {};
-	behaviorProto.exps = new Exps();
-}());
-;
-;
 cr.behaviors.Sin = function(runtime)
 {
 	this.runtime = runtime;
@@ -22779,22 +22734,95 @@ cr.behaviors.solid = function(runtime)
 	};
 	behaviorProto.acts = new Acts();
 }());
+;
+;
+cr.behaviors.wrap = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.wrap.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.mode = this.properties[0];		// 0 = wrap to layout, 1 = wrap to viewport
+	};
+	behinstProto.tick = function ()
+	{
+		var inst = this.inst;
+		inst.update_bbox();
+		var bbox = inst.bbox;
+		var layer = inst.layer;
+		var layout = layer.layout;
+		var lbound = 0, rbound = 0, tbound = 0, bbound = 0;
+		if (this.mode === 0)
+		{
+			rbound = layout.width;
+			bbound = layout.height;
+		}
+		else
+		{
+			lbound = layer.viewLeft;
+			rbound = layer.viewRight;
+			tbound = layer.viewTop;
+			bbound = layer.viewBottom;
+		}
+		if (bbox.right < lbound)
+		{
+			inst.x = (rbound - 1) + (inst.x - bbox.left);
+			inst.set_bbox_changed();
+		}
+		else if (bbox.left > rbound)
+		{
+			inst.x = (lbound + 1) - (bbox.right - inst.x);
+			inst.set_bbox_changed();
+		}
+		else if (bbox.bottom < tbound)
+		{
+			inst.y = (bbound - 1) + (inst.y - bbox.top);
+			inst.set_bbox_changed();
+		}
+		else if (bbox.top > bbound)
+		{
+			inst.y = (tbound + 1) - (bbox.bottom - inst.y);
+			inst.set_bbox_changed();
+		}
+	};
+}());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.Audio,
 	cr.plugins_.progressbar,
-	cr.plugins_.Keyboard,
 	cr.plugins_.Mouse,
+	cr.plugins_.Keyboard,
 	cr.plugins_.TiledBg,
-	cr.plugins_.Sprite,
 	cr.plugins_.Text,
+	cr.plugins_.Sprite,
 	cr.behaviors.EightDir,
-	cr.behaviors.bound,
 	cr.behaviors.scrollto,
 	cr.behaviors.solid,
-	cr.behaviors.Persist,
+	cr.behaviors.wrap,
 	cr.behaviors.Bullet,
 	cr.behaviors.destroy,
 	cr.behaviors.Sin,
+	cr.behaviors.bound,
 	cr.behaviors.custom,
 	cr.system_object.prototype.cnds.OnLayoutStart,
 	cr.system_object.prototype.acts.SetMinimumFramerate,
@@ -22826,9 +22854,15 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Mouse.prototype.cnds.IsOverObject,
 	cr.plugins_.Text.prototype.cnds.IsVisible,
 	cr.system_object.prototype.acts.RestartLayout,
-	cr.system_object.prototype.acts.Signal,
+	cr.system_object.prototype.acts.CreateObject,
 	cr.behaviors.Bullet.prototype.acts.Bounce,
 	cr.plugins_.Mouse.prototype.cnds.OnObjectClicked,
 	cr.system_object.prototype.acts.GoToLayout,
-	cr.system_object.prototype.cnds.CompareTime
+	cr.system_object.prototype.cnds.CompareTime,
+	cr.plugins_.Sprite.prototype.acts.MoveAtAngle,
+	cr.behaviors.Bullet.prototype.acts.SetSpeed,
+	cr.behaviors.Sin.prototype.acts.SetMagnitude,
+	cr.behaviors.Bullet.prototype.exps.Speed,
+	cr.behaviors.EightDir.prototype.acts.SetSpeed,
+	cr.behaviors.EightDir.prototype.exps.Speed
 ];};
